@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Layout, Row, Col, Icon, Card, message, Button } from 'antd';
+import { Layout, Row, Col, Icon, Card, message, Button, Spin } from 'antd';
 import { useHistory } from "react-router-dom";
 
-// import cards from
 import { ReactComponent as Card1 } from '../Icons/BlueCard.svg';
 import { setUserData } from '../Actions/userActions';
 
@@ -16,13 +15,13 @@ function Game ({ user, setUserData }) {
   const cardsArr = ['Cat', 'Defuse', 'Shuffle', 'Exploding'];
   const [currentCard, setCurrentCard] = useState('');
   const [defuseCount, setDefuseCount] = useState(0);
-  const [lastCard, setLastCard] = useState(null);
   const [status, setStatus] = useState(null);
   const [winCount, setWinCount] = useState(0);
   const [loseCount, setLoseCount] = useState(0);
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [leftSize, setLeftSize] = useState(5);
   const [isLeaderBoard, setIsLeaderBoard] = useState(false);
+  const [disable, setDisable] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -36,31 +35,54 @@ function Game ({ user, setUserData }) {
     }
   }, [userData]);
 
+  const showCardUI = () => {
+    return (
+      <Col offset={6}span={18}>
+      <Card style={{ width: 600, height: 300, backgroundColor: 'white'}}>
+        <Col span={10}>
+          <Icon component={Card1} loading={disable} style={{ backgroundColor: 'white', fontSize: '200px', marginTop: '20px'}} onClick={handleFlip}/>
+        </Col>
+        <div className="verticalLine"></div>
+        <Col span={14} style={{marginTop: '150px'}}>
+          <div align='center'>
+            <h1 style={{ marginTop: '-100px'}}>{status && <span>Status: { status === 'Won' ? 'Yay! You won the game' : 'OOPS! You lost'}</span>}</h1>
+            </div>
+            <div align="center">
+            {<span style={{marginRight: '100px', marginBottom: '100px'}}><b>Current Card: {currentCard}</b></span>}
+          </div>
+          <br/>
+          <div align="center" style={{marginBottom: '100px'}}>
+          {<span>Left: {leftSize}</span>} &ensp;&ensp;&ensp; | &ensp;&ensp;&ensp;
+          {<span>Defuse Count: {defuseCount}</span>} 
+          </div>
+
+        </Col>
+      </Card>
+      </Col>
+    );
+  };
+
   // set data if data present for a user
   const setState = () => {
     setWinCount(userData.wonGames);
     setLoseCount(userData.lostGames);
     setGamesPlayed(userData.gamesPlayed);
-    // if (userData.savedGames.defusingCards || userData.savedGames.remainingCards) {
-    //   setDefuseCount(userData.savedGames.defusingCards);
-    //   setLeftSize(userData.savedGames.remainingCards); 
-    // }
   };
 
   const restartGame = () => {
-    setLastCard('');
     setCurrentCard('');
     setDefuseCount(0);
     setLeftSize(5);
     setStatus(null);
+    setDisable(false);
   };
 
   const resetData = (current = currentCard) => {
-    setLastCard(current);
     setCurrentCard('');
     setDefuseCount(0);
     setLeftSize(5);
     setStatus(null);
+    setDisable(false);
   };
 
   const handleFlip = () => {
@@ -72,9 +94,8 @@ function Game ({ user, setUserData }) {
 
     const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
     const current = cardsArr[randomNumber];
-    console.log('current', current, tempRemainingCards);
     setCurrentCard(current);
-    if (tempRemainingCards > 1) {
+    if (leftSize > 1) {
       if (current === 'Defuse') {
         tempDefuseCount += 1;
         tempRemainingCards -= 1;
@@ -83,12 +104,16 @@ function Game ({ user, setUserData }) {
       } else if (current === 'Shuffle') {
         tempDefuseCount = 0;
         tempRemainingCards = 0;
-        resetData(current);
+        message.info('Game is about to re-shuffle');
+        setDisable(true);
+        setTimeout(() => {
+          resetData(current);
+        }, [2000])
       } else if (current === 'Cat') {
         tempRemainingCards -= 1;
         setLeftSize(leftSize - 1);
       } else if (current === 'Exploding') {
-        if (defuseCount > 0){
+        if (defuseCount > 0) {
           tempDefuseCount -= 1;
           tempRemainingCards -= 1;
           setDefuseCount(defuseCount - 1);
@@ -99,7 +124,11 @@ function Game ({ user, setUserData }) {
           setStatus('Fail');
           setGamesPlayed(gamesPlayed +1);
           setLoseCount(loseCount + 1);
-          restartGame();
+          setDisable(true);
+          message.info('Game is about to restart');
+          setTimeout(() => {
+            restartGame();
+          }, 5000);
         }
       } 
     } else {
@@ -108,8 +137,11 @@ function Game ({ user, setUserData }) {
       setStatus('Won');
       setWinCount(winCount + 1);
       setGamesPlayed(gamesPlayed +1);
+      setDisable(true);
       message.info('Game is about to restart');
-      restartGame();
+      setTimeout(() => {
+        restartGame();
+      }, 5000);
     }
     setUserData({
       userName: userData.userName,
@@ -150,24 +182,18 @@ function Game ({ user, setUserData }) {
         </Col>
       </Row>
       <br/>
-      <Row>
-        <Col offset={6}span={18}>
-        <Card style={{ width: 600, height: 300, backgroundColor: 'white'}}>
-          <Col span={10}>
-            <Icon  component={Card1} style={{ backgroundColor: 'white', fontSize: '200px', marginTop: '20px'}} onClick={handleFlip}/>
-          </Col>
-          <div className="verticalLine"></div>
-          <Col span={14} style={{marginTop: '150px'}}>
-            {<span><b>Current Card: {currentCard}</b></span>}
-            <br/>
-            {<span>Left: {leftSize}</span>} &ensp;&ensp; | &ensp;&ensp;
-            {<span>Defuse Count: {defuseCount}</span>} | &ensp;&ensp;
-            {<span>Last Card: {lastCard}</span>}
-            {status && <span>Status: {status}</span>}
-          </Col>
-        </Card>
-        </Col>
-      </Row>
+      {
+        disable ?
+          <Spin loading={disable}>
+            <Row>
+              {showCardUI()}
+            </Row>
+          </Spin> 
+          : 
+          <Row>
+          {showCardUI()}
+        </Row>
+      }
       { 
       isLeaderBoard &&
         history.push('/leaderboard')

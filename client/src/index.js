@@ -15,7 +15,6 @@ axios.defaults.baseURL = BACKEND_SERVICE;
 
 const store= storeConfig();
 const data = localStorage.getItem('userName');
-console.log({data});
 if (data) {
   store.dispatch(getUser(data));
 }
