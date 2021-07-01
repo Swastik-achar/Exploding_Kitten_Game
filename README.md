@@ -24,5 +24,5 @@ npm start
 ```
 ## NOTE
 ``` 
-Inorder to run server need to configure REDIS. Create .env file in server (sample of .env is provided in code as .env_sample) and enter the details.
+Inorder to run server need to configure REDIS. Create a ".env" file in server (sample of ".env" is provided in code as ".env_sample") and enter the details.
 ```
