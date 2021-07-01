@@ -8,6 +8,7 @@ cd client
 npm start
 ```
 Server Installation
+```
 cd server
 npm start
 ```
