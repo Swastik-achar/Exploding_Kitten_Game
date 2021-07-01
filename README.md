@@ -22,7 +22,7 @@ npm start
 - If the card is defusing card, then the card is removed from the deck. This card can be used to defuse one bomb that may come in subsequent cards drawn from the deck.
 - If the card is shuffle card, then the game is restarted and the deck is filled with 5 cards again.
 ```
-##NOTE
+## NOTE
 ``` 
 Inorder to run server need to configure REDIS. Create .env file in server (sample of .env is provided in code as .env_sample) and enter the details.
 ```
