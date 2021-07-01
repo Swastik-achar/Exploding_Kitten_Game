@@ -2,10 +2,12 @@
 
 
 ## Installation
+Client Installation
 ```
-npm start
 cd client
 npm start
-cd..
-npm run dev
+```
+Server Installation
+cd server
+npm start
 ```
